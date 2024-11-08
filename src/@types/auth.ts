@@ -3,7 +3,22 @@ export type SignInCredential = {
     password: string
 }
 
+export type LogInCredential = {
+    login: string
+    password: string
+}
+
 export type SignInResponse = {
+    token: string
+    user: {
+        userId: string
+        userName: string
+        authority: string[]
+        avatar: string
+        email: string
+    }
+}
+export type LogInResponse = {
     token: string
     user: {
         userId: string
@@ -50,7 +65,7 @@ export type Token = {
     refereshToken?: string
 }
 
-export type OauthSignInCallbackPayload = {
-    onSignIn: (tokens: Token, user?: User) => void
+export type OauthLogInCallbackPayload = {
+    onLogIn: (tokens: Token, user?: User) => void
     redirect: () => void
 }

@@ -12,16 +12,15 @@ type DropdownList = {
     icon: JSX.Element
 }
 
-const dropdownItemList: DropdownList[] = [
-]
+const dropdownItemList: DropdownList[] = []
 
 const _UserDropdown = () => {
     const { avatar, userName, email } = useSessionUser((state) => state.user)
 
-    const { signOut } = useAuth()
+    const { logOut } = useAuth()
 
-    const handleSignOut = () => {
-        signOut()
+    const handleLogOut = () => {
+        logOut()
     }
 
     const avatarProps = {
@@ -68,14 +67,14 @@ const _UserDropdown = () => {
                 </Dropdown.Item>
             ))}
             <Dropdown.Item
-                eventKey="Sign Out"
+                eventKey="Log Out"
                 className="gap-2"
-                onClick={handleSignOut}
+                onClick={handleLogOut}
             >
                 <span className="text-xl">
                     <PiSignOutDuotone />
                 </span>
-                <span>Sign Out</span>
+                <span>Log Out</span>
             </Dropdown.Item>
         </Dropdown>
     )

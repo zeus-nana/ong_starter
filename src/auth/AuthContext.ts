@@ -1,21 +1,22 @@
 import { createContext } from 'react'
-import type {
+import {
     SignInCredential,
     SignUpCredential,
     AuthResult,
     User,
-    OauthSignInCallbackPayload,
+    LogInCredential,
+    OauthLogInCallbackPayload,
 } from '@/@types/auth'
 
 type Auth = {
     authenticated: boolean
     user: User
     signIn: (values: SignInCredential) => AuthResult
+    logIn: (values: LogInCredential) => AuthResult
     signUp: (values: SignUpCredential) => AuthResult
     signOut: () => void
-    oAuthSignIn: (
-        callback: (payload: OauthSignInCallbackPayload) => void,
-    ) => void
+    logOut: () => void
+    oAuthLogIn: (callback: (payload: OauthLogInCallbackPayload) => void) => void
 }
 
 const defaultFunctionPlaceHolder = async (): AuthResult => {
@@ -26,11 +27,11 @@ const defaultFunctionPlaceHolder = async (): AuthResult => {
     }
 }
 
-const defaultOAuthSignInPlaceHolder = (
-    callback: (payload: OauthSignInCallbackPayload) => void,
+const defaultOAuthLogInPlaceHolder = (
+    callback: (payload: OauthLogInCallbackPayload) => void,
 ): void => {
     callback({
-        onSignIn: () => {},
+        onLogIn: () => {},
         redirect: () => {},
     })
 }
@@ -39,9 +40,11 @@ const AuthContext = createContext<Auth>({
     authenticated: false,
     user: {},
     signIn: async () => defaultFunctionPlaceHolder(),
+    logIn: async () => defaultFunctionPlaceHolder(),
     signUp: async () => defaultFunctionPlaceHolder(),
     signOut: () => {},
-    oAuthSignIn: defaultOAuthSignInPlaceHolder,
+    logOut: () => {},
+    oAuthLogIn: defaultOAuthLogInPlaceHolder,
 })
 
 export default AuthContext

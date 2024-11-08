@@ -7,11 +7,11 @@ import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useNavigate } from 'react-router-dom'
 
 type ForgotPasswordProps = {
-    signInUrl?: string
+    logInUrl?: string
 }
 
 export const ForgotPasswordBase = ({
-    signInUrl = '/sign-in',
+    logInUrl = '/log-in',
 }: ForgotPasswordProps) => {
     const [emailSent, setEmailSent] = useState(false)
     const [message, setMessage] = useTimeOutMessage()
@@ -19,7 +19,7 @@ export const ForgotPasswordBase = ({
     const navigate = useNavigate()
 
     const handleContinue = () => {
-        navigate(signInUrl)
+        navigate(logInUrl)
     }
 
     return (
@@ -64,11 +64,11 @@ export const ForgotPasswordBase = ({
             <div className="mt-4 text-center">
                 <span>Back to </span>
                 <ActionLink
-                    to={signInUrl}
+                    to={logInUrl}
                     className="heading-text font-bold"
                     themeColor={false}
                 >
-                    Sign in
+                    Log in
                 </ActionLink>
             </div>
         </div>

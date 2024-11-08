@@ -1,5 +1,5 @@
 import { mock } from '../MockAdapter'
-import { signInUserData } from '../data/authData'
+import { logInUserData, signInUserData } from '../data/authData'
 
 mock.onPost(`/sign-in`).reply((config) => {
     const data = JSON.parse(config.data as string) as {
@@ -28,6 +28,35 @@ mock.onPost(`/sign-in`).reply((config) => {
     }
 
     return [401, { message: 'Invalid email or password!' }]
+})
+
+mock.onPost(`/log-in`).reply((config) => {
+    const data = JSON.parse(config.data as string) as {
+        login: string
+        password: string
+    }
+
+    const { login, password } = data
+
+    const user = logInUserData.find(
+        (user) => user.login === login && user.password === password,
+    )
+
+    if (user) {
+        return new Promise(function (resolve) {
+            setTimeout(function () {
+                resolve([
+                    201,
+                    {
+                        user,
+                        token: 'wVYrxaeNa9OxdnULvde1Au5m5w63',
+                    },
+                ])
+            }, 800)
+        })
+    }
+
+    return [401, { message: 'Invalid login or password!' }]
 })
 
 mock.onPost(`/sign-up`).reply((config) => {
@@ -73,5 +102,9 @@ mock.onPost(`/forgot-password`).reply(() => {
 })
 
 mock.onPost(`/sign-out`).reply(() => {
+    return [200, true]
+})
+
+mock.onPost(`/log-out`).reply(() => {
     return [200, true]
 })

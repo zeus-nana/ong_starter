@@ -7,11 +7,21 @@ import type {
     ResetPassword,
     SignInResponse,
     SignUpResponse,
+    LogInCredential,
+    LogInResponse,
 } from '@/@types/auth'
 
 export async function apiSignIn(data: SignInCredential) {
     return ApiService.fetchDataWithAxios<SignInResponse>({
         url: endpointConfig.signIn,
+        method: 'post',
+        data,
+    })
+}
+
+export async function apiLogIn(data: LogInCredential) {
+    return ApiService.fetchDataWithAxios<LogInResponse>({
+        url: endpointConfig.logIn,
         method: 'post',
         data,
     })
@@ -28,6 +38,13 @@ export async function apiSignUp(data: SignUpCredential) {
 export async function apiSignOut() {
     return ApiService.fetchDataWithAxios({
         url: endpointConfig.signOut,
+        method: 'post',
+    })
+}
+
+export async function apiLogOut() {
+    return ApiService.fetchDataWithAxios({
+        url: endpointConfig.logOut,
         method: 'post',
     })
 }
