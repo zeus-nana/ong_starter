@@ -1,0 +1,20 @@
+{
+    "nav": {
+        "home": "Accueil",
+        "singleMenuItem": "Menu simple",
+        "collapseMenu": {
+            "collapseMenu": "Menu déroulant",
+            "item1": "Menu déroulant 1",
+            "item2": "Menu déroulant 2"
+        },
+        "groupMenu": {
+            "groupMenu": "Menu groupé",
+            "single": "Menu groupé simple",
+            "collapse": {
+                "collapse": "Menu déroulant groupé",
+                "item1": "Menu déroulant groupé 1",
+                "item2": "Menu déroulant groupé 2"
+            }
+        }
+    }
+}
