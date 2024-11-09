@@ -32,14 +32,14 @@ mock.onPost(`/sign-in`).reply((config) => {
 
 mock.onPost(`/log-in`).reply((config) => {
     const data = JSON.parse(config.data as string) as {
-        login: string
+        email: string
         password: string
     }
 
-    const { login, password } = data
+    const { email, password } = data
 
     const user = logInUserData.find(
-        (user) => user.login === login && user.password === password,
+        (user) => user.email === email && user.password === password,
     )
 
     if (user) {
@@ -56,7 +56,7 @@ mock.onPost(`/log-in`).reply((config) => {
         })
     }
 
-    return [401, { message: 'Invalid login or password!' }]
+    return [401, { message: 'Invalid email or password!' }]
 })
 
 mock.onPost(`/sign-up`).reply((config) => {

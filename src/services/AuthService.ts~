@@ -1,6 +1,10 @@
 import ApiService from './ApiService'
 import endpointConfig from '@/configs/endpoint.config'
-import type { LogInCredential, LogInResponse } from '@/@types/auth'
+import type {
+    LogInCredential,
+    LogInResponse,
+} from '@/@types/auth'
+
 
 export async function apiLogIn(data: LogInCredential) {
     return ApiService.fetchDataWithAxios<LogInResponse>({
@@ -9,6 +13,7 @@ export async function apiLogIn(data: LogInCredential) {
         data,
     })
 }
+
 
 export async function apiLogOut() {
     return ApiService.fetchDataWithAxios({

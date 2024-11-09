@@ -7,7 +7,7 @@ import withHeaderItem, { WithHeaderItemProps } from '@/utils/hoc/withHeaderItem'
 import navigationConfig from '@/configs/navigation.config'
 import { useThemeStore } from '@/store/themeStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
-import { useSessionUser } from '@/store/authStore'
+import { useAuth } from '@/auth'
 
 const VerticalMenuContent = lazy(
     () => import('@/components/template/VerticalMenuContent'),
@@ -38,7 +38,8 @@ const MobileNav = () => {
     )
     const currentRouteKey = useRouteKeyStore((state) => state.currentRouteKey)
 
-    const userAuthority = useSessionUser((state) => state.user.authority)
+    const { user } = useAuth()
+    const userAuthority = user.authority
 
     return (
         <>

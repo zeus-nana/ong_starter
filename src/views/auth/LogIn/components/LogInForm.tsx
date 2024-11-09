@@ -19,14 +19,14 @@ interface LoginFormProps extends CommonProps {
 }
 
 type LoginFormSchema = {
-    login: string
+    email: string
     password: string
 }
 
 const validationSchema: ZodType<LoginFormSchema> = z.object({
-    login: z
-        .string({ required_error: 'Please enter your login' })
-        .min(1, { message: 'Please enter your login' }),
+    email: z
+        .string({ required_error: 'Please enter your email' })
+        .min(1, { message: 'Please enter your email' }),
     password: z
         .string({ required_error: 'Please enter your password' })
         .min(1, { message: 'Please enter your password' }),
@@ -43,7 +43,7 @@ const LoginForm = (props: LoginFormProps) => {
         control,
     } = useForm<LoginFormSchema>({
         defaultValues: {
-            login: 'admin',
+            email: 'admin-01@ong.com',
             password: '123Qwe',
         },
         resolver: zodResolver(validationSchema),
@@ -52,12 +52,12 @@ const LoginForm = (props: LoginFormProps) => {
     const { logIn } = useAuth()
 
     const onLogin = async (values: LoginFormSchema) => {
-        const { login, password } = values
+        const { email, password } = values
 
         if (!disableSubmit) {
             setSubmitting(true)
 
-            const result = await logIn({ login, password })
+            const result = await logIn({ email, password })
 
             if (result?.status === 'failed') {
                 setMessage?.(result.message)
@@ -72,11 +72,11 @@ const LoginForm = (props: LoginFormProps) => {
             <Form onSubmit={handleSubmit(onLogin)}>
                 <FormItem
                     label="Login"
-                    invalid={Boolean(errors.login)}
-                    errorMessage={errors.login?.message}
+                    invalid={Boolean(errors.email)}
+                    errorMessage={errors.email?.message}
                 >
                     <Controller
-                        name="login"
+                        name="email"
                         control={control}
                         render={({ field }) => (
                             <Input

@@ -4,8 +4,8 @@ import { useAuth } from '@/auth'
 import navigationConfig from '@/configs/navigation.config'
 
 const HorizontalNav = ({
-    translationSetup = true,
-}: {
+                           translationSetup = true,
+                       }: {
     translationSetup?: boolean
 }) => {
     const currentRouteKey = useRouteKeyStore((state) => state.currentRouteKey)

@@ -1,23 +1,8 @@
-export type SignInCredential = {
+export type LogInCredential = {
     email: string
     password: string
 }
 
-export type LogInCredential = {
-    login: string
-    password: string
-}
-
-export type SignInResponse = {
-    token: string
-    user: {
-        userId: string
-        userName: string
-        authority: string[]
-        avatar: string
-        email: string
-    }
-}
 export type LogInResponse = {
     token: string
     user: {
@@ -27,14 +12,6 @@ export type LogInResponse = {
         avatar: string
         email: string
     }
-}
-
-export type SignUpResponse = SignInResponse
-
-export type SignUpCredential = {
-    userName: string
-    email: string
-    password: string
 }
 
 export type ForgotPassword = {
@@ -58,14 +35,4 @@ export type User = {
     userName?: string | null
     email?: string | null
     authority?: string[]
-}
-
-export type Token = {
-    accessToken: string
-    refereshToken?: string
-}
-
-export type OauthLogInCallbackPayload = {
-    onLogIn: (tokens: Token, user?: User) => void
-    redirect: () => void
 }
