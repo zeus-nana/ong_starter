@@ -270,18 +270,22 @@ const getCurrentUser = catchAsync(
       return next(new AppError('User not found', 404));
     }
 
+      // 5) If ok, send token to client
+      const loggedUser = {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          phone: user.phone,
+          department: user.department,
+          must_reset_password: user.must_reset_password,
+          created_at: user.created_at,
+          authenticated: true,
+      };
+
     // Renvoyer les informations de l'utilisateur
     res.status(200).json({
       status: 'success',
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        phone: user.phone,
-        department: user.department,
-        created_at: user.created_at,
-        authenticated: user.authenticated,
-      },
+      user: loggedUser
     });
   },
 );

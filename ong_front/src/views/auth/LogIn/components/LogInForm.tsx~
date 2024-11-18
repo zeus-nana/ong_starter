@@ -26,7 +26,6 @@ type LoginFormSchema = {
 const validationSchema: ZodType<LoginFormSchema> = z.object({
     email: z
         .string({ required_error: 'Please enter your email' })
-        .email({ message: 'Please enter a valid email' })
         .min(1, { message: 'Please enter your email' }),
     password: z
         .string({ required_error: 'Please enter your password' })
@@ -44,8 +43,8 @@ const LoginForm = (props: LoginFormProps) => {
         control,
     } = useForm<LoginFormSchema>({
         defaultValues: {
-            email: 'superadmin@propservice.com',
-            password: 'Trinita#1',
+            email: 'superadmin',
+            password: '123Qwe',
         },
         resolver: zodResolver(validationSchema),
     })
