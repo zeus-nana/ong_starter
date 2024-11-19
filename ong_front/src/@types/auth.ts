@@ -1,3 +1,5 @@
+import { ex } from '@fullcalendar/core/internal-common'
+
 export type LogInCredential = {
     email: string
     password: string
@@ -23,7 +25,14 @@ export type ForgotPassword = {
 }
 
 export type ResetPassword = {
-    password: string
+    email: string
+    currentPassword: string
+    newPassword: string
+}
+
+export type ChangePassword = {
+    currentPassword: string
+    newPassword: string
 }
 
 export type AuthRequestStatus = 'success' | 'failed' | 'warning' | ''
@@ -49,4 +58,14 @@ export type ForgotPasswordResponse = {
     status: string
     message: string
     data?: boolean
+}
+
+export type ChangePasswordResponse = {
+    status: string
+    message: string
+}
+
+export type ResetPasswordResponse = {
+    status: string
+    message: string
 }

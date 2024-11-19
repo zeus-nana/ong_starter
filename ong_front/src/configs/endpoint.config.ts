@@ -6,7 +6,8 @@ const endpointConfig = {
         logout: `${apiPrefix}/auth/logout`,
         getCurrentUser: `${apiPrefix}/auth/current-user`,
         forgotPassword: `${apiPrefix}/users/forgot-password`,
-        resetPassword: `${apiPrefix}/auth/reset-password`,
+        resetPassword: `${apiPrefix}/users/reset-password`,
+        changePassword: `${apiPrefix}/auth/change-password`,
     },
 }
 

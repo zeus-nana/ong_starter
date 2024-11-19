@@ -7,12 +7,10 @@ import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useNavigate } from 'react-router-dom'
 
 type ResetPasswordProps = {
-    signInUrl?: string
+    logInUrl?: string
 }
 
-export const ResetPasswordBase = ({
-    signInUrl = '/sign-in',
-}: ResetPasswordProps) => {
+export const ResetPasswordBase = ({ logInUrl = '/login-in' }: ResetPasswordProps) => {
     const [resetComplete, setResetComplete] = useState(false)
 
     const [message, setMessage] = useTimeOutMessage()
@@ -20,7 +18,7 @@ export const ResetPasswordBase = ({
     const navigate = useNavigate()
 
     const handleContinue = () => {
-        navigate(signInUrl)
+        navigate(logInUrl)
     }
 
     return (
@@ -29,16 +27,14 @@ export const ResetPasswordBase = ({
                 {resetComplete ? (
                     <>
                         <h3 className="mb-1">Reset done</h3>
-                        <p className="font-semibold heading-text">
-                            Your password has been successfully reset
-                        </p>
+                        <p className="font-semibold heading-text">Your password has been successfully reset</p>
                     </>
                 ) : (
                     <>
-                        <h3 className="mb-1">Set new password</h3>
-                        <p className="font-semibold heading-text">
-                            Your new password must different to previos password
-                        </p>
+                        <h3 className="mb-1">Set a new password</h3>
+                        {/*<p className="font-semibold heading-text">*/}
+                        {/*    Your new password must be different to previous password*/}
+                        {/*</p>*/}
                     </>
                 )}
             </div>
@@ -52,23 +48,14 @@ export const ResetPasswordBase = ({
                 setMessage={setMessage}
                 setResetComplete={setResetComplete}
             >
-                <Button
-                    block
-                    variant="solid"
-                    type="button"
-                    onClick={handleContinue}
-                >
+                <Button block variant="solid" type="button" onClick={handleContinue}>
                     Continue
                 </Button>
             </ResetPasswordForm>
             <div className="mt-4 text-center">
                 <span>Back to </span>
-                <ActionLink
-                    to={signInUrl}
-                    className="heading-text font-bold"
-                    themeColor={false}
-                >
-                    Sign in
+                <ActionLink to={logInUrl} className="heading-text font-bold" themeColor={false}>
+                    Log in
                 </ActionLink>
             </div>
         </div>

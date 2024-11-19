@@ -1,11 +1,14 @@
 import ApiService from './ApiService'
 import endpointConfig from '@/configs/endpoint.config'
 import {
+    ChangePassword,
+    ChangePasswordResponse,
     ForgotPassword,
     ForgotPasswordResponse,
     LogInCredential,
     LogInResponse,
     ResetPassword,
+    ResetPasswordResponse,
     User,
 } from '@/@types/auth'
 
@@ -40,9 +43,17 @@ export async function apiForgotPassword(data: ForgotPassword) {
     })
 }
 
-export async function apiResetPassword<T>(data: ResetPassword) {
-    return ApiService.fetchDataWithAxios<T>({
+export async function apiResetPassword(data: ResetPassword) {
+    return ApiService.fetchDataWithAxios<ResetPasswordResponse>({
         url: endpointConfig.auth.resetPassword,
+        method: 'post',
+        data,
+    })
+}
+
+export async function apiChangePassword(data: ChangePassword) {
+    return ApiService.fetchDataWithAxios<ChangePasswordResponse>({
+        url: endpointConfig.auth.changePassword,
         method: 'post',
         data,
     })
