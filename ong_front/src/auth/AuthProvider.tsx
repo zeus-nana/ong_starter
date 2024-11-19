@@ -1,10 +1,4 @@
-import {
-    useRef,
-    useImperativeHandle,
-    forwardRef,
-    useState,
-    useEffect,
-} from 'react'
+import { useRef, useImperativeHandle, forwardRef, useState, useEffect } from 'react'
 import AuthContext from './AuthContext'
 import appConfig from '@/configs/app.config'
 import { apiGetCurrentUser, apiLogIn, apiLogout } from '@/services/AuthService'
@@ -72,18 +66,14 @@ function AuthProvider({ children }: AuthProviderProps) {
     useEffect(() => {
         const initAuth = async () => {
             // Skip auth check if we're on the login page
-            if (
-                window.location.pathname === appConfig.unAuthenticatedEntryPath
-            ) {
+            if (window.location.pathname === appConfig.unAuthenticatedEntryPath) {
                 setLoading(false)
                 return
             }
 
             const isAuthenticated = await checkAuth()
             if (!isAuthenticated) {
-                navigatorRef.current?.navigate(
-                    appConfig.unAuthenticatedEntryPath,
-                )
+                navigatorRef.current?.navigate(appConfig.unAuthenticatedEntryPath)
             }
             setLoading(false)
         }
@@ -99,9 +89,7 @@ function AuthProvider({ children }: AuthProviderProps) {
             return
         }
 
-        navigatorRef.current?.navigate(
-            redirectUrl || appConfig.authenticatedEntryPath,
-        )
+        navigatorRef.current?.navigate(redirectUrl || appConfig.authenticatedEntryPath)
     }
 
     const logIn = async (values: LogInCredential): AuthResult => {
@@ -144,13 +132,11 @@ function AuthProvider({ children }: AuthProviderProps) {
 
     const logOut = async () => {
         try {
-            const response = await apiLogout(user)
+            const response = await apiLogout()
             if (response.status === 'success') {
                 setUser(initialUser)
                 setAuthenticated(false)
-                navigatorRef.current?.navigate(
-                    appConfig.unAuthenticatedEntryPath,
-                )
+                navigatorRef.current?.navigate(appConfig.unAuthenticatedEntryPath)
             }
         } catch (error) {
             console.error('Logout failed:', error)
