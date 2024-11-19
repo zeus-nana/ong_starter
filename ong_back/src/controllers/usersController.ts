@@ -173,15 +173,34 @@ const forgotPassword = catchAsync(
             await sendEmail({
                 email: user.email,
                 subject: 'Réinitialisation de votre mot de passe',
-                message: `Bonjour,
-
-Vous avez demandé la réinitialisation de votre mot de passe.
-Voici votre nouveau mot de passe temporaire : ${temporaryPassword}
-
-Nous vous recommandons de changer ce mot de passe dès votre prochaine connexion.
-Ce changement sera d'ailleurs obligatoire pour des raisons de sécurité.
-
-Si vous n'êtes pas à l'origine de cette demande, veuillez contacter immédiatement le support.`,
+                message: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2C3E50; border-bottom: 2px solid #3498DB; padding-bottom: 10px;">Réinitialisation de mot de passe</h2>
+        
+        <p style="color: #34495E; font-size: 16px;">Bonjour,</p>
+        
+        <p style="color: #34495E; font-size: 16px;">Vous avez demandé la réinitialisation de votre mot de passe.</p>
+        
+        <div style="background-color: #F8F9FA; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; color: #2C3E50;">Votre nouveau mot de passe temporaire :</p>
+            <p style="font-family: monospace; font-size: 24px; color: #3498DB; margin: 10px 0;">${temporaryPassword}</p>
+        </div>
+        
+        <div style="background-color: #FFF3CD; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="color: #856404; margin: 0;">
+                <strong>Important :</strong> Pour des raisons de sécurité, vous devrez changer ce mot de passe lors de votre prochaine connexion.
+            </p>
+        </div>
+        
+        <p style="color: #E74C3C; font-size: 14px;">
+            Si vous n'êtes pas à l'origine de cette demande, veuillez contacter immédiatement le support.
+        </p>
+        
+        <div style="border-top: 1px solid #ddd; margin-top: 20px; padding-top: 20px; font-size: 12px; color: #777;">
+            Ceci est un message automatique, merci de ne pas y répondre.
+        </div>
+    </div>
+    `,
             })
         } catch (err) {
             console.error("Erreur lors de l'envoi de l'email", err)
