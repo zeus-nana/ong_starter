@@ -4,35 +4,40 @@ import LogInForm from './components/LogInForm'
 import ActionLink from '@/components/shared/ActionLink'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useThemeStore } from '@/store/themeStore'
+import { useEffect, useState } from 'react'
 
 type LogInProps = {
     forgetPasswordUrl?: string
     disableSubmit?: boolean
 }
 
-export const LogInBase = ({
-    forgetPasswordUrl = '/forgot-password',
-    disableSubmit,
-}: LogInProps) => {
+export const LogInBase = ({ forgetPasswordUrl = '/forgot-password', disableSubmit }: LogInProps) => {
     const [message, setMessage] = useTimeOutMessage()
-
     const mode = useThemeStore((state) => state.mode)
+    const [isStyleLoaded, setIsStyleLoaded] = useState(false)
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsStyleLoaded(true)
+        }, 300)
+
+        return () => clearTimeout(timer)
+    }, [])
+
+    // On retourne null tant que les styles ne sont pas chargés
+    // Ce qui maintiendra le Suspense fallback (Loading) actif
+    if (!isStyleLoaded) {
+        return null
+    }
 
     return (
         <>
             <div className="mb-8">
-                <Logo
-                    type="streamline"
-                    mode={mode}
-                    imgClass="mx-auto"
-                    logoWidth={60}
-                />
+                <Logo type="streamline" mode={mode} imgClass="mx-auto" logoWidth={60} />
             </div>
             <div className="mb-10">
                 <h2 className="mb-2">Welcome back!</h2>
-                <p className="font-semibold heading-text">
-                    Please enter your credentials to log in!
-                </p>
+                <p className="font-semibold heading-text">Please enter your credentials to log in!</p>
             </div>
             {message && (
                 <Alert showIcon className="mb-4" type="danger">
