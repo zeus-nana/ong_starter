@@ -6,120 +6,183 @@ import AppError from '../utils/appError';
 import bcrypt from 'bcryptjs';
 import { jwtVerify, signToken } from '../utils/tokens';
 import validator from 'validator';
+import { AuthErrorCode } from '../type/authErrors'
 
 const login = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
-    // 1) Check if email and password exist
-    console.log(login, password);
-    if (!login || !password) {
-      return next(new AppError('Please provide login and password!', 400));
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { email, password } = req.body;
+
+        // 1) Validation des données
+        if (!email || !password) {
+            return next(
+                new AppError(
+                    'Please provide email and password!',
+                    AuthErrorCode.BAD_REQUEST
+                )
+            );
+        }
+
+        // 2) Vérification utilisateur et mot de passe
+        const user: User | undefined = await db('users').where({ email }).first();
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return next(
+                new AppError(
+                    'Incorrect email or password',
+                    AuthErrorCode.UNAUTHORIZED
+                )
+            );
+        }
+
+        // 3) Vérification statut utilisateur
+        if (!user.active) {
+            return next(
+                new AppError(
+                    'This account is not active! Please contact support.',
+                    AuthErrorCode.FORBIDDEN
+                )
+            );
+        }
+
+        // 4) Vérification reset password
+        if (user.must_reset_password) {
+            return res.status(200).json({
+                status: 'success',
+                message: 'User must reset password',
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    must_reset_password: user.must_reset_password,
+                },
+            });
+        }
+
+        // 5) Création du token et envoi réponse
+        const loggedUser = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            phone: user.phone,
+            department: user.department,
+            must_reset_password: user.must_reset_password,
+            created_at: user.created_at,
+            authenticated: true,
+        };
+
+        const token = signToken(user.id, user.email);
+        const cookieExpires = new Date(
+            Date.now() + Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60 * 1000
+        );
+
+        // Vérifier si le token expire bientôt
+        if (Date.now() + 5 * 60 * 1000 > cookieExpires.getTime()) {
+            res.setHeader('X-Auth-Warning', 'Token will expire soon');
+            res.status(AuthErrorCode.LOGIN_TIMEOUT);
+        }
+
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            expires: cookieExpires,
+            secure: process.env.NODE_ENV === 'production',
+        });
+
+        res.status(200).json({
+            status: 'success',
+            token,
+            user: loggedUser,
+        });
     }
-    // 2) Check if user exist && password is correct
-    const user: User | undefined = await db('users').where({ email }).first();
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return next(new AppError('Incorrect email or password', 401));
-    }
-    // 3) Check if user is active
-    if (!user.active) {
-      return next(
-        new AppError('This user is not active! Please contact support.', 401),
-      );
-    }
-
-    // 4) Check if user must reset password
-    if (user.must_reset_password) {
-      return res.status(200).json({
-        status: 'success',
-        message: 'User must reset password',
-        user: {
-          id: user.id,
-          email: user.email,
-          must_reset_password: user.must_reset_password,
-        },
-      });
-    }
-
-    // 5) If ok, send token to client
-    const loggedUser = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      phone: user.phone,
-      department: user.department,
-      must_reset_password: user.must_reset_password,
-      created_at: user.created_at,
-      authenticated: true,
-    };
-
-    const token = signToken(user.id, user.email);
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      expires: new Date(
-        Date.now() +
-          Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60 * 1000,
-      ),
-      secure: process.env.NODE_ENV === 'production',
-    });
-
-    // console.log('res', res);
-
-    res.status(200).json({
-      status: 'success',
-      token,
-      user: loggedUser,
-    });
-  },
 );
 
 const protect = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    // 1) Get the token  and check if it exists
-    let token;
-    // await new Promise((resolve) => setTimeout(resolve, 2000));
-    // Vérifier d'abord le cookie
-    if (req.cookies.jwt) {
-      token = req.cookies.jwt;
-    }
-    // Garder la vérification de l'en-tête Authorization comme fallback
-    else if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
-      token = req.headers.authorization.split(' ')[1];
-    }
+    async (req: Request, res: Response, next: NextFunction) => {
+        let token;
 
-    if (!token) {
-      return next(new AppError('Accès interdit!', 401));
-    }
+        // 1) Vérification présence token
+        if (req.cookies.jwt) {
+            token = req.cookies.jwt;
+        } else if (
+            req.headers.authorization &&
+            req.headers.authorization.startsWith('Bearer')
+        ) {
+            token = req.headers.authorization.split(' ')[1];
+        }
 
-    // 2) Token verification
-    const decoded = await jwtVerify(token, process.env.JWT_SECRET!);
+        if (!token) {
+            return next(
+                new AppError(
+                    'You are not logged in!',
+                    AuthErrorCode.UNAUTHORIZED
+                )
+            );
+        }
 
-    // 3) Check if user still exists and is active
-    const currentUser = await db('users').where({ id: decoded.id }).first();
-    if (!currentUser) {
-      return next(new AppError('User does  not exist', 401));
-    }
-    if (!currentUser.active) {
-      return next(
-        new AppError(
-          "Ce compte est désactivé, contactez l'administrateur !",
-          401,
-        ),
-      );
-    }
+        // 2) Vérification validité token
+        try {
+            const decoded = await jwtVerify(token, process.env.JWT_SECRET!);
 
-    // 4) Check if user record has been updated after token was issued
-    if (currentUser.updated_at.getTime() > decoded.iat * 1000 + 10000) {
-      return next(new AppError('Le compte a été mis a jour', 401));
-    }
+            // Vérifier expiration imminente
+            if (decoded.exp) {
+                const timeUntilExpiry = decoded.exp * 1000 - Date.now();
+                const fiveMinutes = 5 * 60 * 1000;
 
-    // GRANT ACCESS TO PROTECTED ROUTE
-    currentUser.authenticated = true;
-    req.user = currentUser;
-    next();
-  },
+                if (timeUntilExpiry <= 0) {
+                    return next(
+                        new AppError(
+                            'Your session has expired',
+                            AuthErrorCode.SESSION_EXPIRED
+                        )
+                    );
+                }
+
+                if (timeUntilExpiry <= fiveMinutes) {
+                    res.setHeader('X-Auth-Warning', 'Token will expire soon');
+                    res.status(AuthErrorCode.LOGIN_TIMEOUT);
+                }
+            }
+
+            // 3) Vérification existence utilisateur
+            const currentUser = await db('users').where({ id: decoded.id }).first();
+            if (!currentUser) {
+                return next(
+                    new AppError(
+                        'User no longer exists',
+                        AuthErrorCode.UNAUTHORIZED
+                    )
+                );
+            }
+
+            // 4) Vérification statut utilisateur
+            if (!currentUser.active) {
+                return next(
+                    new AppError(
+                        'This account has been deactivated',
+                        AuthErrorCode.FORBIDDEN
+                    )
+                );
+            }
+
+            // 5) Vérification mise à jour utilisateur
+            if (currentUser.updated_at.getTime() > decoded.iat * 1000 + 10000) {
+                return next(
+                    new AppError(
+                        'User account has been updated. Please log in again',
+                        AuthErrorCode.SESSION_EXPIRED
+                    )
+                );
+            }
+
+            currentUser.authenticated = true;
+            req.user = currentUser;
+            next();
+        } catch (err) {
+            return next(
+                new AppError(
+                    'Invalid token',
+                    AuthErrorCode.UNAUTHORIZED
+                )
+            );
+        }
+    }
 );
 
 const restrictTo = (...roles: string[]) => {
@@ -262,33 +325,69 @@ const verifyToken = catchAsync(
 );
 
 const getCurrentUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    // Récupérer l'utilisateur à partir de la requête
-    const user = req.user;
-    // await new Promise((resolve) => setTimeout(resolve, 2000));
-    if (!user) {
-      return next(new AppError('User not found', 404));
+    async (req: Request, res: Response, next: NextFunction) => {
+        const user = req.user;
+
+        if (!user) {
+            return next(
+                new AppError(
+                    'User not found',
+                    AuthErrorCode.NOT_FOUND
+                )
+            );
+        }
+
+        // Vérifier si le token dans le cookie va expirer bientôt
+        const token = req.cookies.jwt;
+        if (token) {
+            try {
+                const decoded = await jwtVerify(token, process.env.JWT_SECRET!);
+                if (decoded.exp) {
+                    const timeUntilExpiry = decoded.exp * 1000 - Date.now();
+                    const fiveMinutes = 5 * 60 * 1000;
+
+                    if (timeUntilExpiry <= 0) {
+                        return next(
+                            new AppError(
+                                'Your session has expired',
+                                AuthErrorCode.SESSION_EXPIRED
+                            )
+                        );
+                    }
+
+                    if (timeUntilExpiry <= fiveMinutes) {
+                        res.setHeader('X-Auth-Warning', 'Token will expire soon');
+                        res.status(AuthErrorCode.LOGIN_TIMEOUT);
+                    }
+                }
+            } catch (err) {
+                return next(
+                    new AppError(
+                        'Invalid token',
+                        AuthErrorCode.UNAUTHORIZED
+                    )
+                );
+            }
+        }
+
+        const loggedUser = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            phone: user.phone,
+            department: user.department,
+            must_reset_password: user.must_reset_password,
+            created_at: user.created_at,
+            authenticated: true,
+        };
+
+        res.status(200).json({
+            status: 'success',
+            user: loggedUser
+        });
     }
-
-      // 5) If ok, send token to client
-      const loggedUser = {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          phone: user.phone,
-          department: user.department,
-          must_reset_password: user.must_reset_password,
-          created_at: user.created_at,
-          authenticated: true,
-      };
-
-    // Renvoyer les informations de l'utilisateur
-    res.status(200).json({
-      status: 'success',
-      user: loggedUser
-    });
-  },
 );
+
 
 export default {
   login,
