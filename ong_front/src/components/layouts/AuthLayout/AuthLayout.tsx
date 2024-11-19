@@ -4,12 +4,9 @@ import type { LazyExoticComponent } from 'react'
 
 type LayoutType = 'simple' | 'split' | 'side'
 
-type Layouts = Record<
-    LayoutType,
-    LazyExoticComponent<<T extends CommonProps>(props: T) => JSX.Element>
->
+type Layouts = Record<LayoutType, LazyExoticComponent<<T extends CommonProps>(props: T) => JSX.Element>>
 
-const currentLayoutType: LayoutType = 'split'
+const currentLayoutType: LayoutType = 'simple'
 
 const layouts: Layouts = {
     simple: lazy(() => import('./Simple')),
