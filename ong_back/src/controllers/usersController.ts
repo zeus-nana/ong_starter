@@ -6,7 +6,7 @@ import { User } from '../models/User'
 import { catchAsync } from '../utils/catchAsync'
 import AppError from '../utils/appError'
 import { signToken } from '../utils/tokens'
-import sendEmail from '../utils/email'
+import sendEmail from '../utils/email/sendEmail'
 
 // Check if user already exists
 // const checkUserEmailExists = async (email: string): Promise<boolean> => {
