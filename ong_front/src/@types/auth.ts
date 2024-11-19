@@ -44,3 +44,9 @@ export type User = {
     authenticated?: boolean
     authority?: string[]
 }
+
+export type ForgotPasswordResponse = {
+    status: string
+    message: string
+    data?: boolean
+}

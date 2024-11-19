@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { FormItem, Form } from '@/components/ui/Form'
@@ -8,9 +7,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { ZodType } from 'zod'
 import type { CommonProps } from '@/@types/common'
+import { toast } from '@/components/ui'
+import { Notification } from '@/components/ui/Notification'
 
 interface ForgotPasswordFormProps extends CommonProps {
     emailSent: boolean
+    isSubmitting: boolean
+    setIsSubmitting: (value: boolean) => void
     setEmailSent?: (compplete: boolean) => void
     setMessage?: (message: string) => void
 }
@@ -24,9 +27,9 @@ const validationSchema: ZodType<ForgotPasswordFormSchema> = z.object({
 })
 
 const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
-    const [isSubmitting, setSubmitting] = useState<boolean>(false)
+    // const [isSubmitting, setSubmitting] = useState<boolean>(false)
 
-    const { className, setMessage, setEmailSent, emailSent, children } = props
+    const { className, setMessage, setEmailSent, emailSent, children, isSubmitting, setIsSubmitting } = props
 
     const {
         handleSubmit,
@@ -36,53 +39,55 @@ const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
         resolver: zodResolver(validationSchema),
     })
 
+    const showNotification = (type: 'success' | 'warning' | 'danger' | 'info', message: string) => {
+        toast.push(
+            <Notification title={type === 'success' ? 'Succès' : 'Information'} type={type} duration={3000}>
+                {message}
+            </Notification>,
+        )
+    }
+
     const onForgotPassword = async (values: ForgotPasswordFormSchema) => {
         const { email } = values
+        setIsSubmitting(true)
 
         try {
-            const resp = await apiForgotPassword<boolean>({ email })
-            if (resp) {
-                setSubmitting(false)
+            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+            const resp = await apiForgotPassword({ email })
+            console.log('response ::', resp)
+
+            if (resp.status === 'succès' || resp.status === 'success') {
+                console.log(resp)
+
                 setEmailSent?.(true)
+                showNotification('success', 'Un nouveau mot de passe vous a été envoyé par mail.')
+            } else {
+                setMessage?.(resp.message)
+                showNotification('danger', resp.message)
             }
-        } catch (errors) {
-            setMessage?.(
-                typeof errors === 'string' ? errors : 'Some error occured!',
-            )
-            setSubmitting(false)
+            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || error.message || 'An error occured'
+            showNotification('danger', errorMessage)
         }
 
-        setSubmitting(false)
+        setIsSubmitting(false)
     }
 
     return (
         <div className={className}>
             {!emailSent ? (
                 <Form onSubmit={handleSubmit(onForgotPassword)}>
-                    <FormItem
-                        label="Email"
-                        invalid={Boolean(errors.email)}
-                        errorMessage={errors.email?.message}
-                    >
+                    <FormItem label="Email" invalid={Boolean(errors.email)} errorMessage={errors.email?.message}>
                         <Controller
                             name="email"
                             control={control}
                             render={({ field }) => (
-                                <Input
-                                    type="email"
-                                    placeholder="Email"
-                                    autoComplete="off"
-                                    {...field}
-                                />
+                                <Input type="email" placeholder="Email" autoComplete="off" {...field} />
                             )}
                         />
                     </FormItem>
-                    <Button
-                        block
-                        loading={isSubmitting}
-                        variant="solid"
-                        type="submit"
-                    >
+                    <Button block loading={isSubmitting} variant="solid" type="submit">
                         {isSubmitting ? 'Submiting...' : 'Submit'}
                     </Button>
                 </Form>

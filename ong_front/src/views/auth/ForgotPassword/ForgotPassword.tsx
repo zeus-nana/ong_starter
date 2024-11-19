@@ -10,12 +10,10 @@ type ForgotPasswordProps = {
     logInUrl?: string
 }
 
-export const ForgotPasswordBase = ({
-    logInUrl = '/log-in',
-}: ForgotPasswordProps) => {
+export const ForgotPasswordBase = ({ logInUrl = '/log-in' }: ForgotPasswordProps) => {
     const [emailSent, setEmailSent] = useState(false)
     const [message, setMessage] = useTimeOutMessage()
-
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const navigate = useNavigate()
 
     const handleContinue = () => {
@@ -28,16 +26,15 @@ export const ForgotPasswordBase = ({
                 {emailSent ? (
                     <>
                         <h3 className="mb-2">Check your email</h3>
-                        <p className="font-semibold heading-text">
-                            We have sent a password recovery to your email
-                        </p>
+                        {/*<p className="font-semibold heading-text">*/}
+                        {/*    We have sent a password recovery to your email*/}
+                        {/*</p>*/}
                     </>
                 ) : (
                     <>
                         <h3 className="mb-2">Forgot Password</h3>
                         <p className="font-semibold heading-text">
-                            Please enter your email to receive a verification
-                            code
+                            Please enter your email to receive a verification code
                         </p>
                     </>
                 )}
@@ -51,13 +48,10 @@ export const ForgotPasswordBase = ({
                 emailSent={emailSent}
                 setMessage={setMessage}
                 setEmailSent={setEmailSent}
+                isSubmitting={isSubmitting}
+                setIsSubmitting={setIsSubmitting}
             >
-                <Button
-                    block
-                    variant="solid"
-                    type="button"
-                    onClick={handleContinue}
-                >
+                <Button block variant="solid" type="button" onClick={handleContinue}>
                     Continue
                 </Button>
             </ForgotPasswordForm>
@@ -65,7 +59,7 @@ export const ForgotPasswordBase = ({
                 <span>Back to </span>
                 <ActionLink
                     to={logInUrl}
-                    className="heading-text font-bold"
+                    className={`heading-text font-bold ${isSubmitting ? 'pointer-events-none opacity-50' : ''}`}
                     themeColor={false}
                 >
                     Log in

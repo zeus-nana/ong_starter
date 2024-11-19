@@ -1,7 +1,8 @@
 import ApiService from './ApiService'
 import endpointConfig from '@/configs/endpoint.config'
-import type {
+import {
     ForgotPassword,
+    ForgotPasswordResponse,
     LogInCredential,
     LogInResponse,
     ResetPassword,
@@ -31,8 +32,8 @@ export async function apiGetCurrentUser(data: User) {
     })
 }
 
-export async function apiForgotPassword<T>(data: ForgotPassword) {
-    return ApiService.fetchDataWithAxios<T>({
+export async function apiForgotPassword(data: ForgotPassword) {
+    return ApiService.fetchDataWithAxios<ForgotPasswordResponse>({
         url: endpointConfig.auth.forgotPassword,
         method: 'post',
         data,
